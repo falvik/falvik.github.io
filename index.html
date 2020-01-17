@@ -57,7 +57,7 @@
         if (!isTokenSentToServer(currentToken)) {
             console.log('Отправка токена на сервер...');
 
-            var url = 'https://10.100.50.199:8080/subscribe'; // адрес скрипта на сервере который сохраняет ID устройства
+            var url = 'http://10.100.50.199:8080/subscribe'; // адрес скрипта на сервере который сохраняет ID устройства
             $.ajax({
                 contentType: 'application/json',
                 data: JSON.stringify({token: currentToken}),
