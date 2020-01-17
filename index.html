@@ -5,8 +5,8 @@
     <title>Title</title>
 </head>
 <body>
-<script type="text/javascript" src="http://gstatic.com/firebasejs/3.9.0/firebase.js"></script>
-<script src="http://code.jquery.com/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="https://gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+<script src="https://code.jquery.com/jquery-1.8.3.js"></script>
 <button type="button" id="subscribe" onclick="subscribe()">Следить за изменениями</button>
 <script>
     // firebase_subscribe.js
@@ -57,7 +57,7 @@
         if (!isTokenSentToServer(currentToken)) {
             console.log('Отправка токена на сервер...');
 
-            var url = 'http://localhost:8080/subscribe'; // адрес скрипта на сервере который сохраняет ID устройства
+            var url = 'https://10.100.50.199:8080/subscribe'; // адрес скрипта на сервере который сохраняет ID устройства
             $.ajax({
                 contentType: 'application/json',
                 data: JSON.stringify({token: currentToken}),
