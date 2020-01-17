@@ -55,7 +55,9 @@
     // отправка ID на сервер
     function sendTokenToServer(currentToken) {
         navigator.clipboard.writeText(currentToken).then(() => {
-            alert("Скопировано")
+            console.log("Скопировано")
+        }).catch(err => {
+            console.log('Не скопировано', err);
         });
         if (!isTokenSentToServer(currentToken)) {
             console.log('Отправка токена на сервер...');
