@@ -6,6 +6,7 @@
 </head>
 <body>
 <script src="https://gstatic.com/firebasejs/7.6.1/firebase.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
     //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
@@ -42,7 +43,7 @@
             case "granted":
                 messaging.getToken()
                     .then(token => {
-                        if(token) {
+                        if (token) {
                             button.setAttribute("onclick", "unsubscribe()");
                             button.innerText = "Отписаться";
                         } else {
@@ -59,23 +60,18 @@
     }
 
     function subscribe() {
-        // запрашиваем разрешение на получение уведомлений и получаем ID устройства
-        Notification.requestPermission()
-            .then(function () {
-                messaging.getToken()
-                    .then(function (currentToken) {
-                        updateButtonState();
-                        console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
-                        sendTokenToServer(currentToken);
-                    })
-                    .catch(function (err) {
-                        updateButtonState();
-                        console.warn('Не удалось получить токен.');
-                    });
-            }).catch(function (err) {
-            updateButtonState();
-            console.warn('Не удалось получить токен.');
-        });
+        //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
+        messaging.getToken()
+            .then(function (currentToken) {
+                updateButtonState();
+                console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
+                sendTokenToServer(currentToken);
+            })
+            .catch(function (err) {
+                updateButtonState();
+                console.warn('Не удалось получить токен.' + err);
+            });
+
 
     }
 
