@@ -85,9 +85,9 @@
             .then(token => messaging.deleteToken(token))
             .then(succesfull => {
                 if (succesfull) {
-                    console.log("Токен успешно удалён: " + token);
+                    console.log("Токен успешно удалён");
                 } else {
-                    console.warn("Не удалось удалить токен " + token);
+                    console.warn("Не удалось удалить токен");
                 }
             });
     }
