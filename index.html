@@ -8,12 +8,17 @@
 <script src="https://gstatic.com/firebasejs/7.6.1/firebase.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
-    //"Идентификатор отправителя" из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
+    //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
     const senderId = '493570643651';
+    const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
+    const projectId = "test-51e78";
+
     const testClientCode = 121000011741609581;
     const subscribeUrl = "https://compath-callback.sportmaster.ru/test/web-push-subscribe";
 
     firebase.initializeApp({
+        apiKey: apiKey,
+        projectId: projectId,
         messagingSenderId: senderId
     });
     var messaging = firebase.messaging();
