@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<script src="https://gstatic.com/firebasejs/6.6.2/firebase.js"></script>
+<script src="https://gstatic.com/firebasejs/6.6.0/firebase.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
     //"Идентификатор отправителя" из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
@@ -40,16 +40,23 @@
 
     function subscribe() {
         // запрашиваем разрешение на получение уведомлений и получаем ID устройства
-        messaging.getToken()
-            .then(function (currentToken) {
-                updateButtonState();
-                console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
-                sendTokenToServer(currentToken);
-            })
-            .catch(function (err) {
-                updateButtonState();
-                console.warn('Не удалось получить токен.');
-            });
+        Notification.requestPermission()
+            .then(function () {
+                messaging.getToken()
+                    .then(function (currentToken) {
+                        updateButtonState();
+                        console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
+                        sendTokenToServer(currentToken);
+                    })
+                    .catch(function (err) {
+                        updateButtonState();
+                        console.warn('Не удалось получить токен.');
+                    });
+            }).catch(function (err) {
+            updateButtonState();
+            console.warn('Не удалось получить токен.');
+        });
+
     }
 
     function unsubscribe() {
