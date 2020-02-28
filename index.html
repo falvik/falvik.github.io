@@ -16,7 +16,9 @@
     const appId = "1:493570643651:web:cd564f697b8d081b17b476";
 
     const testClientCode = 121000011741609581;
-    const subscribeUrl = "https://compath-callback.sportmaster.ru/test/web-push-subscribe";
+    const host = "https://compath-callback.sportmaster.ru";
+    const subscribeUrl = host + "/test/web-push-subscribe";
+    const unsubscribeUrl = host + "/test/web-push-unsubscribe";
 
     // Initialize Firebase
     firebase.initializeApp({
@@ -63,14 +65,14 @@
         //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
         messaging.getToken()
             .then(function (currentToken) {
-                updateButtonState();
                 console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
-                sendTokenToServer(currentToken);
+                doSubscribe(currentToken);
                 saveToken(currentToken)
+                updateButtonState();
             })
             .catch(function (err) {
-                updateButtonState();
                 console.warn('Не удалось получить токен.' + err);
+                updateButtonState();
             });
 
 
@@ -100,13 +102,28 @@
     }
 
     // отправка ID на сервер
-    function sendTokenToServer(currentToken) {
+    function doSubscribe(currentToken) {
         console.log('Отправка токена на сервер...');
         $.ajax({
             contentType: 'application/json',
             data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
             type: 'POST',
             url: subscribeUrl
+        }).then(function () {
+            console.log('Токен успешно отправлен');
+        }).catch(function (err) {
+            console.warn('Не удалось отправить токен на сервер.', err);
+        });
+    }
+
+    // отправка ID на сервер
+    function doUnsubscribe(currentToken) {
+        console.log('Отправка запроса на отписку от рассылки...');
+        $.ajax({
+            contentType: 'application/json',
+            data: currentToken,
+            type: 'POST',
+            url: unsubscribeUrl
         }).then(function () {
             console.log('Токен успешно отправлен');
         }).catch(function (err) {
