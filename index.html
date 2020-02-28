@@ -92,16 +92,16 @@
     // отправка ID на сервер
     function sendTokenToServer(currentToken) {
         console.log('Отправка токена на сервер...');
-        $.ajax({
-            contentType: 'application/json',
-            data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-            type: 'POST',
-            url: subscribeUrl
-        }).then(function () {
-            console.log('Токен успешно отправлен');
-        }).catch(function (err) {
-            console.warn('Не удалось отправить токен на сервер.', err);
-        });
+        // $.ajax({
+        //     contentType: 'application/json',
+        //     data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
+        //     type: 'POST',
+        //     url: subscribeUrl
+        // }).then(function () {
+        //     console.log('Токен успешно отправлен');
+        // }).catch(function (err) {
+        //     console.warn('Не удалось отправить токен на сервер.', err);
+        // });
     }
 </script>
 </body>
