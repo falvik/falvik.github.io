@@ -61,9 +61,9 @@
 
     function unsubscribe() {
         console.log("Отписываемся...");
-        var token = messaging.getToken();
-        messaging.deleteToken(token)
-            .then(function (succesfull) {
+        messaging.getToken()
+            .then(token => messaging.deleteToken(token))
+            .then(succesfull => {
                 if (succesfull) {
                     console.log("Токен успешно удалён: " + token);
                 } else {
