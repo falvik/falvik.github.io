@@ -43,7 +43,7 @@
             case "granted":
                 messaging.getToken()
                     .then(token => {
-                        if (token) {
+                        if (checkToken(token)) {
                             button.setAttribute("onclick", "unsubscribe()");
                             button.innerText = "Отписаться";
                         } else {
@@ -66,6 +66,7 @@
                 updateButtonState();
                 console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
                 sendTokenToServer(currentToken);
+                saveToken(currentToken)
             })
             .catch(function (err) {
                 updateButtonState();
@@ -82,11 +83,20 @@
             .then(succesfull => {
                 if (succesfull) {
                     console.log("Токен успешно удалён");
+                    saveToken()
                 } else {
                     console.warn("Не удалось удалить токен");
                 }
                 updateButtonState()
             });
+    }
+
+    function checkToken(currentToken) {
+        return window.localStorage.getItem('firebaseToken') === currentToken;
+    }
+
+    function saveToken(currentToken) {
+        window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
     }
 
     // отправка ID на сервер
