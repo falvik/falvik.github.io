@@ -40,34 +40,30 @@
     }
 
     function subscribe() {
-        // запрашиваем разрешение на получение уведомлений
-        messaging.requestPermission()
-            .then(function () {
+        // запрашиваем разрешение на получение уведомлений и получаем ID устройства
+        messaging.getToken()
+            .then(function (currentToken) {
                 updateButtonState();
-                console.log("Пользователь согласился получать push");
-                // получаем ID устройства
-                messaging.getToken()
-                    .then(function (currentToken) {
-                        console.log("Токен пользователя:" + currentToken);
-                        if (currentToken) {
-                            sendTokenToServer(currentToken);
-                        } else {
-                            console.warn('Не удалось получить токен.');
-                        }
-                    })
-                    .catch(function (err) {
-                        console.warn('При получении токена произошла ошибка.', err);
-                    });
+                console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
+                sendTokenToServer(currentToken);
             })
             .catch(function (err) {
                 updateButtonState();
-                console.warn('Не удалось получить разрешение на показ уведомлений.', err);
+                console.warn('Не удалось получить токен.');
             });
     }
 
     function unsubscribe() {
-        console.log("Отписываемся...")
-        updateButtonState();
+        console.log("Отписываемся...");
+        var token = messaging.getToken();
+        messaging.deleteToken(token)
+            .then(function (succesfull) {
+                if (succesfull) {
+                    console.log("Токен успешно удалён: " + token);
+                } else {
+                    console.warn("Не удалось удалить токен " + token);
+                }
+            });
     }
 
     // отправка ID на сервер
