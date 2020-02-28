@@ -23,15 +23,19 @@
     function setButtonState() {
         var button = document.getElementById("subscribeBtn");
         button.removeAttribute("hidden");
-        if (messaging.permission === "default") {
-            button.setAttribute("onclick", "subscribe()");
-            button.innerText = "Подписаться"
-        } else if(messaging.permission === "granted") {
-            button.setAttribute("onclick", "unsubscribe()");
-            button.innerText = "Отписаться"
-        } else if(messaging.permission === "denied") {
-            button.disabled = true;
-            button.innerText = "Запрещено"
+        switch (Notification.permission) {
+            case "default":
+                button.setAttribute("onclick", "subscribe()");
+                button.innerText = "Подписаться";
+                break;
+            case "granted":
+                button.setAttribute("onclick", "unsubscribe()");
+                button.innerText = "Отписаться";
+                break;
+            case "denied":
+                button.disabled = true;
+                button.innerText = "Запрещено";
+                break;
         }
     }
 
