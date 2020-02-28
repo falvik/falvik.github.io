@@ -40,8 +40,16 @@
                 button.innerText = "Подписаться";
                 break;
             case "granted":
-                button.setAttribute("onclick", "unsubscribe()");
-                button.innerText = "Отписаться";
+                messaging.getToken()
+                    .then(token => {
+                        if(token) {
+                            button.setAttribute("onclick", "unsubscribe()");
+                            button.innerText = "Отписаться";
+                        } else {
+                            button.setAttribute("onclick", "subscribe()");
+                            button.innerText = "Подписаться (разрешение уже получено)";
+                        }
+                    });
                 break;
             case "denied":
                 button.disabled = true;
