@@ -67,7 +67,7 @@
             .then(function (currentToken) {
                 console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
                 doSubscribe(currentToken);
-                saveToken(currentToken)
+                saveToken(currentToken);
                 updateButtonState();
             })
             .catch(function (err) {
