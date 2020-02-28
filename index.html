@@ -9,127 +9,127 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
-    //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
-    const senderId = '493570643651';
-    const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
-    const projectId = "test-51e78";
-    const appId = "1:493570643651:web:cd564f697b8d081b17b476";
+        //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
+        const senderId = '493570643651';
+        const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
+        const projectId = "test-51e78";
+        const appId = "1:493570643651:web:cd564f697b8d081b17b476";
 
-    const testClientCode = 121000011741609581;
-    const host = "https://compath-callback.sportmaster.ru";
-    const subscribeUrl = host + "/test/web-push-subscribe";
-    const unsubscribeUrl = host + "/test/web-push-unsubscribe";
+        const testClientCode = "121000011741609581";
+        const host = "https://compath-callback.sportmaster.ru";
+        const subscribeUrl = host + "/test/web-push-subscribe";
+        const unsubscribeUrl = host + "/test/web-push-unsubscribe";
 
-    // Initialize Firebase
-    firebase.initializeApp({
-        apiKey: "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg",
-        authDomain: "test-51e78.firebaseapp.com",
-        databaseURL: "https://test-51e78.firebaseio.com",
-        projectId: "test-51e78",
-        storageBucket: "test-51e78.appspot.com",
-        messagingSenderId: "493570643651",
-        appId: "1:493570643651:web:cd564f697b8d081b17b476",
-        measurementId: "G-LLFF9VTSRL"
-    });
-    var messaging = firebase.messaging();
-    updateButtonState();
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg",
+            authDomain: "test-51e78.firebaseapp.com",
+            databaseURL: "https://test-51e78.firebaseio.com",
+            projectId: "test-51e78",
+            storageBucket: "test-51e78.appspot.com",
+            messagingSenderId: "493570643651",
+            appId: "1:493570643651:web:cd564f697b8d081b17b476",
+            measurementId: "G-LLFF9VTSRL"
+        });
+        var messaging = firebase.messaging();
+        updateButtonState();
 
-    function updateButtonState() {
-        var button = document.getElementById("subscribeBtn");
-        button.removeAttribute("hidden");
-        switch (Notification.permission) {
-            case "default":
-                button.setAttribute("onclick", "subscribe()");
-                button.innerText = "Подписаться";
-                break;
-            case "granted":
-                messaging.getToken()
-                    .then(token => {
-                        if (checkToken(token)) {
-                            button.setAttribute("onclick", "unsubscribe()");
-                            button.innerText = "Отписаться";
-                        } else {
-                            button.setAttribute("onclick", "subscribe()");
-                            button.innerText = "Подписаться (разрешение уже получено)";
-                        }
-                    });
-                break;
-            case "denied":
-                button.disabled = true;
-                button.innerText = "Запрещено";
-                break;
+        function updateButtonState() {
+            var button = document.getElementById("subscribeBtn");
+            button.removeAttribute("hidden");
+            switch (Notification.permission) {
+                case "default":
+                    button.setAttribute("onclick", "subscribe()");
+                    button.innerText = "Подписаться";
+                    break;
+                case "granted":
+                    messaging.getToken()
+                        .then(token => {
+                            if (checkToken(token)) {
+                                button.setAttribute("onclick", "unsubscribe()");
+                                button.innerText = "Отписаться";
+                            } else {
+                                button.setAttribute("onclick", "subscribe()");
+                                button.innerText = "Подписаться (разрешение уже получено)";
+                            }
+                        });
+                    break;
+                case "denied":
+                    button.disabled = true;
+                    button.innerText = "Запрещено";
+                    break;
+            }
         }
-    }
 
-    function subscribe() {
-        //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
-        messaging.getToken()
-            .then(function (currentToken) {
-                console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
-                doSubscribe(currentToken);
-                saveToken(currentToken);
-                updateButtonState();
-            })
-            .catch(function (err) {
-                console.warn('Не удалось получить токен.' + err);
-                updateButtonState();
+        function subscribe() {
+            //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
+            messaging.getToken()
+                .then(function (currentToken) {
+                    console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
+                    doSubscribe(currentToken);
+                    saveToken(currentToken);
+                    updateButtonState();
+                })
+                .catch(function (err) {
+                    console.warn('Не удалось получить токен.' + err);
+                    updateButtonState();
+                });
+
+
+        }
+
+        function unsubscribe() {
+            console.log("Отписываемся...");
+            messaging.getToken()
+                .then(token => messaging.deleteToken(token))
+                .then(succesfull => {
+                    if (succesfull) {
+                        console.log("Токен успешно удалён");
+                        saveToken()
+                    } else {
+                        console.warn("Не удалось удалить токен");
+                    }
+                    updateButtonState()
+                });
+        }
+
+        function checkToken(currentToken) {
+            return window.localStorage.getItem('firebaseToken') === currentToken;
+        }
+
+        function saveToken(currentToken) {
+            window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
+        }
+
+        // отправка ID на сервер
+        function doSubscribe(currentToken) {
+            console.log('Отправка токена на сервер...');
+            $.ajax({
+                contentType: 'application/json',
+                data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
+                type: 'POST',
+                url: subscribeUrl
+            }).then(function () {
+                console.log('Токен успешно отправлен');
+            }).catch(function (err) {
+                console.warn('Не удалось отправить токен на сервер.', err);
             });
+        }
 
-
-    }
-
-    function unsubscribe() {
-        console.log("Отписываемся...");
-        messaging.getToken()
-            .then(token => messaging.deleteToken(token))
-            .then(succesfull => {
-                if (succesfull) {
-                    console.log("Токен успешно удалён");
-                    saveToken()
-                } else {
-                    console.warn("Не удалось удалить токен");
-                }
-                updateButtonState()
+        // отправка ID на сервер
+        function doUnsubscribe(currentToken) {
+            console.log('Отправка запроса на отписку от рассылки...');
+            $.ajax({
+                contentType: 'application/json',
+                data: currentToken,
+                type: 'POST',
+                url: unsubscribeUrl
+            }).then(function () {
+                console.log('Токен успешно отправлен');
+            }).catch(function (err) {
+                console.warn('Не удалось отправить токен на сервер.', err);
             });
-    }
-
-    function checkToken(currentToken) {
-        return window.localStorage.getItem('firebaseToken') === currentToken;
-    }
-
-    function saveToken(currentToken) {
-        window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
-    }
-
-    // отправка ID на сервер
-    function doSubscribe(currentToken) {
-        console.log('Отправка токена на сервер...');
-        $.ajax({
-            contentType: 'application/json',
-            data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-            type: 'POST',
-            url: subscribeUrl
-        }).then(function () {
-            console.log('Токен успешно отправлен');
-        }).catch(function (err) {
-            console.warn('Не удалось отправить токен на сервер.', err);
-        });
-    }
-
-    // отправка ID на сервер
-    function doUnsubscribe(currentToken) {
-        console.log('Отправка запроса на отписку от рассылки...');
-        $.ajax({
-            contentType: 'application/json',
-            data: currentToken,
-            type: 'POST',
-            url: unsubscribeUrl
-        }).then(function () {
-            console.log('Токен успешно отправлен');
-        }).catch(function (err) {
-            console.warn('Не удалось отправить токен на сервер.', err);
-        });
-    }
+        }
 </script>
 </body>
 </html>
