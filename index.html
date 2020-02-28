@@ -18,9 +18,9 @@
         messagingSenderId: senderId
     });
     var messaging = firebase.messaging();
-    setButtonState();
+    updateButtonState();
 
-    function setButtonState() {
+    function updateButtonState() {
         var button = document.getElementById("subscribeBtn");
         button.removeAttribute("hidden");
         switch (Notification.permission) {
@@ -43,6 +43,7 @@
         // запрашиваем разрешение на получение уведомлений
         messaging.requestPermission()
             .then(function () {
+                updateButtonState();
                 console.log("Пользователь согласился получать push");
                 // получаем ID устройства
                 messaging.getToken()
@@ -59,12 +60,14 @@
                     });
             })
             .catch(function (err) {
+                updateButtonState();
                 console.warn('Не удалось получить разрешение на показ уведомлений.', err);
             });
     }
 
     function unsubscribe() {
         console.log("Отписываемся...")
+        updateButtonState();
     }
 
     // отправка ID на сервер
