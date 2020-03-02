@@ -85,7 +85,7 @@
                 .then(succesfull => {
                     if (succesfull) {
                         console.log("Токен успешно удалён");
-                        saveToken()
+                        doUnsubscribe()
                     } else {
                         console.warn("Не удалось удалить токен");
                     }
@@ -109,9 +109,9 @@
                 data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
                 type: 'POST',
                 url: subscribeUrl
-            }).then(function () {
+            }).done(function () {
                 console.log('Токен успешно отправлен');
-            }).catch(function (err) {
+            }).fail(function (err) {
                 console.warn('Не удалось отправить токен на сервер.', err);
             });
         }
@@ -125,9 +125,9 @@
                 type: 'POST',
                 url: unsubscribeUrl
             }).done(function () {
-                console.log('Токен успешно отправлен');
+                console.log('Информация об отписке отправлена');
             }).fail(function (err) {
-                console.warn('Не удалось отправить токен на сервер.', err);
+                console.warn('Не удалось отправить информациб об отписке.', err);
             });
         }
 </script>
