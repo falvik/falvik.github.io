@@ -124,9 +124,9 @@
                 data: currentToken,
                 type: 'POST',
                 url: unsubscribeUrl
-            }).then(function () {
+            }).done(function () {
                 console.log('Токен успешно отправлен');
-            }).catch(function (err) {
+            }).fail(function (err) {
                 console.warn('Не удалось отправить токен на сервер.', err);
             });
         }
