@@ -85,7 +85,7 @@
                 .then(succesfull => {
                     if (succesfull) {
                         console.log("Токен успешно удалён");
-                        doUnsubscribe()
+                        //doUnsubscribe()
                     } else {
                         console.warn("Не удалось удалить токен");
                     }
@@ -104,16 +104,17 @@
         // отправка ID на сервер
         function doSubscribe(currentToken) {
             console.log('Отправка токена на сервер...');
-            $.ajax({
+            $.ajax(subscribeUrl, {
+                type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-                type: 'POST',
-                url: subscribeUrl
-            }).done(function () {
-                console.log('Токен успешно отправлен');
-            }).fail(function (err) {
-                console.warn('Не удалось отправить токен на сервер.', err);
-            });
+                success: function (data, status, xhr) {
+                    console.log('Подписка отправлена: ' + status + ', data: ' + data);
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    console.error('Подписка не отправлена' + errorMessage);
+                }
+            })
         }
 
         // отправка ID на сервер
