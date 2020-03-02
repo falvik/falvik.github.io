@@ -85,7 +85,7 @@
                 .then(succesfull => {
                     if (succesfull) {
                         console.log("Токен успешно удалён");
-                        //doUnsubscribe()
+                        doUnsubscribe()
                     } else {
                         console.warn("Не удалось удалить токен");
                     }
@@ -109,11 +109,11 @@
                 contentType: 'application/json',
                 dataType: "text",
                 data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-                success: function (data, status, xhr) {
-                    console.log('Подписка отправлена: ' + status + ', data: ' + data);
+                success: function () {
+                    console.log('Подписка успешно отправлена')
                 },
                 error: function (jqXhr, textStatus, errorMessage) {
-                    console.error('Подписка не отправлена' + errorMessage);
+                    console.error('Подписка не отправлена: ' + errorMessage);
                 }
             })
         }
@@ -121,16 +121,18 @@
         // отправка ID на сервер
         function doUnsubscribe(currentToken) {
             console.log('Отправка запроса на отписку от рассылки...');
-            $.ajax({
+            $.ajax(unsubscribeUrl, {
                 contentType: 'application/json',
+                dataType: "text",
                 data: currentToken,
                 type: 'POST',
-                url: unsubscribeUrl
-            }).done(function () {
-                console.log('Информация об отписке отправлена');
-            }).fail(function (err) {
-                console.warn('Не удалось отправить информациб об отписке.', err);
-            });
+                success: function () {
+                    console.log('Отписка успешно отправлена')
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    console.error('Отписка не отправлена: ' + errorMessage);
+                }
+            })
         }
 </script>
 </body>
