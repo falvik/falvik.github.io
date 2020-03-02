@@ -81,16 +81,16 @@
         function unsubscribe() {
             console.log("Отписываемся...");
             messaging.getToken()
-                .then(token => messaging.deleteToken(token))
-                .then(succesfull => {
-                    if (succesfull) {
-                        console.log("Токен успешно удалён");
-                        doUnsubscribe()
-                    } else {
-                        console.warn("Не удалось удалить токен");
-                    }
-                    updateButtonState()
-                });
+                .then(token => messaging.deleteToken(token)
+                    .then(succesfull => {
+                        if (succesfull) {
+                            console.log("Токен успешно удалён");
+                            doUnsubscribe(token)
+                        } else {
+                            console.warn("Не удалось удалить токен");
+                        }
+                        updateButtonState()
+                    }));
         }
 
         function checkToken(currentToken) {
