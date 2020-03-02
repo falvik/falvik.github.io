@@ -107,7 +107,7 @@
             $.ajax(subscribeUrl, {
                 type: 'POST',
                 contentType: 'application/json',
-                dataType: "text",
+                dataType: 'text',
                 data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
                 success: function () {
                     console.log('Подписка успешно отправлена')
@@ -123,9 +123,9 @@
             console.log('Отправка запроса на отписку от рассылки...');
             $.ajax(unsubscribeUrl, {
                 type: 'POST',
-                contentType: 'text',
+                contentType: 'application/json',
                 dataType: 'text',
-                data: currentToken,
+                data: JSON.stringify({token:currentToken}),
                 success: function () {
                     console.log('Отписка успешно отправлена')
                 },
