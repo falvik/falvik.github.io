@@ -122,10 +122,10 @@
         function doUnsubscribe(currentToken) {
             console.log('Отправка запроса на отписку от рассылки...');
             $.ajax(unsubscribeUrl, {
-                contentType: 'application/json',
-                dataType: "text",
-                data: currentToken,
                 type: 'POST',
+                contentType: 'text',
+                dataType: 'text',
+                data: currentToken,
                 success: function () {
                     console.log('Отписка успешно отправлена')
                 },
