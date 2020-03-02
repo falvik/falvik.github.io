@@ -107,7 +107,7 @@
             $.ajax(subscribeUrl, {
                 type: 'POST',
                 contentType: 'application/json',
-                dataType: text,
+                dataType: "text",
                 data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
                 success: function (data, status, xhr) {
                     console.log('Подписка отправлена: ' + status + ', data: ' + data);
