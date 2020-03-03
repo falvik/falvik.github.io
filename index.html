@@ -32,6 +32,9 @@
             measurementId: "G-LLFF9VTSRL"
         });
         var messaging = firebase.messaging();
+        messaging.onMessage((payload) => {
+            console.log('Message received. ', payload);
+        });
         updateButtonState();
 
         function updateButtonState() {
