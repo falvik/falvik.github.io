@@ -16,5 +16,5 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 messaging.onMessage((payload) => {
-    val i = 0;
+    var i = 0;
 });
