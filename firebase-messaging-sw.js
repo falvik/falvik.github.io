@@ -15,6 +15,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onMessage((payload) => {
+messaging.setBackgroundMessageHandler((payload) => {
     var i = 0;
 });
