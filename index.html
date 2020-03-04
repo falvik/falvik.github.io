@@ -33,7 +33,7 @@
         });
         var messaging = firebase.messaging();
         messaging.onMessage(function(payload) {
-            var i = 0;
+            alert(JSON.stringify(payload))
         });
         updateButtonState();
 
