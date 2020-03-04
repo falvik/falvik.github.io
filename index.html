@@ -33,7 +33,9 @@
         });
         var messaging = firebase.messaging();
         messaging.onMessage(function(payload) {
-            alert(JSON.stringify(payload))
+            if(document.hasFocus()){
+                alert(JSON.stringify(payload))
+            }
         });
         updateButtonState();
 
