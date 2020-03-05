@@ -44,3 +44,7 @@ function setStatus(id, status, error) {
         }
     })
 }
+
+self.addEventListener('push', function(e) {
+    var i = 0;
+}
