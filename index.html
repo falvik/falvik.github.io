@@ -154,7 +154,7 @@
             $.ajax(setStatusUrl, {
                 type: 'POST',
                 contentType: 'application/json',
-                dataType: 'application/json',
+                dataType: 'text',
                 data: JSON.stringify({messageCode:id, state: status, errorMessage: error}),
                 success: function () {
                     console.log('Статус успешно отправлен')
