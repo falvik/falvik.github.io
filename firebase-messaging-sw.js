@@ -18,9 +18,9 @@ const messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload) {
     const data = payload.data;
     const notificationOptions = {body: data.body, tag: data.messageId};
-    const notyfy = new Notification(data.title,notificationOptions);
+    const notify = new Notification(data.title,notificationOptions);
     if(data.link) {
-        notyfy.onclick = () => {
+        notify.onclick = () => {
             setStatus(data.messageId, "LINK");
             window.open(data.link);
         }
