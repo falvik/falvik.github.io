@@ -20,7 +20,7 @@ messaging.setBackgroundMessageHandler(function(payload) {
     const notificationOptions = {body: data.body, tag: data.messageId};
     const notyfy = new Notification(data.title,notificationOptions);
     if(data.link) {
-        notify.onclick = () => {
+        notyfy.onclick = () => {
             setStatus(data.messageId, "LINK");
             window.open(data.link);
         }
