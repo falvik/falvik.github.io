@@ -17,6 +17,30 @@ const messaging = firebase.messaging();
 
 messaging.setBackgroundMessageHandler(function(payload) {
     const data = payload.data;
-    const notificationOptions = {body: data.body, tag: data.messageId}
-    return self.registration.showNotification(data.title, notificationOptions);
+    const notificationOptions = {body: data.body, tag: data.messageId};
+    const notyfy = new Notification(data.title,notificationOptions);
+    if(data.link) {
+        notify.onclick = () => {
+            setStatus(data.messageId, "LINK");
+            window.open(data.link);
+        }
+    }
+    notify.onshow = () => setStatus(data.messageId, "SHOW");
+    notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
 });
+
+function setStatus(id, status, error) {
+    console.log('Отправка статуса ' + status + " ");
+    $.ajax(setStatusUrl, {
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'application/json',
+        data: JSON.stringify({messageCode:id, state: status, errorMessage: error}),
+        success: function () {
+            console.log('Статус успешно отправлен')
+        },
+        error: function (jqXhr, textStatus, errorMessage) {
+            console.error('Статус не отправлен: ' + errorMessage);
+        }
+    })
+}

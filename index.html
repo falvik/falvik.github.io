@@ -19,6 +19,7 @@
         const host = "https://compath-callback.sportmaster.ru";
         const subscribeUrl = host + "/test/web-push-subscribe";
         const unsubscribeUrl = host + "/test/web-push-unsubscribe";
+        const setStatusUrl = host + "/test/web-push-status";
 
         // Initialize Firebase
         firebase.initializeApp({
@@ -34,8 +35,16 @@
         var messaging = firebase.messaging();
         messaging.onMessage(function(payload) {
             const data = payload.data;
-            const notificationOptions = {body: data.body, tag: data.messageId}
-            new Notification(data.title,notificationOptions);
+            const notificationOptions = {body: data.body, tag: data.messageId};
+            const notyfy = new Notification(data.title,notificationOptions);
+            if(data.link) {
+                notify.onclick = () => {
+                    setStatus(data.messageId, "LINK");
+                    window.open(data.link);
+                }
+            }
+            notify.onshow = () => setStatus(data.messageId, "SHOW");
+            notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
         });
         updateButtonState();
 
@@ -136,6 +145,22 @@
                 },
                 error: function (jqXhr, textStatus, errorMessage) {
                     console.error('Отписка не отправлена: ' + errorMessage);
+                }
+            })
+        }
+
+        function setStatus(id, status, error) {
+            console.log('Отправка статуса ' + status + " ");
+            $.ajax(setStatusUrl, {
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'application/json',
+                data: JSON.stringify({messageCode:id, state: status, errorMessage: error}),
+                success: function () {
+                    console.log('Статус успешно отправлен')
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    console.error('Статус не отправлен: ' + errorMessage);
                 }
             })
         }
