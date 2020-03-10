@@ -32,19 +32,12 @@
             appId: "1:493570643651:web:cd564f697b8d081b17b476",
             measurementId: "G-LLFF9VTSRL"
         });
-        var messaging = firebase.messaging();
-        messaging.onMessage(function(payload) {
-            const data = payload.data;
-            const notificationOptions = {body: data.body, tag: data.messageId};
-            const notify = new Notification(data.title,notificationOptions);
-            if(data.link) {
-                notify.onclick = () => {
-                    setStatus(data.messageId, "LINK");
-                    window.open(data.link);
-                }
-            }
-            notify.onshow = () => setStatus(data.messageId, "SHOW");
-            notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
+
+        const messaging = firebase.messaging();
+        messaging.onTokenRefresh(()=>{
+            console.log("Токен обновился, переподписываемся.");
+            unsubscribe(new Promise((resolve) => resolve(getOldToken())));
+            subscribe();
         });
         updateButtonState();
 
@@ -60,7 +53,7 @@
                     messaging.getToken()
                         .then(token => {
                             if (checkToken(token)) {
-                                button.setAttribute("onclick", "unsubscribe()");
+                                button.setAttribute("onclick", "unsubscribe(messaging.getToken())");
                                 button.innerText = "Отписаться";
                             } else {
                                 button.setAttribute("onclick", "subscribe()");
@@ -92,27 +85,32 @@
 
         }
 
-        function unsubscribe() {
+        function unsubscribe(tokenPromise) {
             console.log("Отписываемся...");
-            messaging.getToken()
+
+            tokenPromise
                 .then(token => messaging.deleteToken(token)
                     .then(succesfull => {
                         if (succesfull) {
-                            console.log("Токен успешно удалён");
+                            console.log("Токен " + token + " успешно удалён");
                             doUnsubscribe(token)
                         } else {
-                            console.warn("Не удалось удалить токен");
+                            console.warn("Не удалось удалить токен " + token);
                         }
                         updateButtonState()
                     }));
         }
 
         function checkToken(currentToken) {
-            return window.localStorage.getItem('firebaseToken') === currentToken;
+            return getOldToken() === currentToken;
         }
 
         function saveToken(currentToken) {
             window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
+        }
+
+        function getOldToken() {
+            return window.localStorage.getItem('firebaseToken')
         }
 
         // отправка ID на сервер
@@ -145,22 +143,6 @@
                 },
                 error: function (jqXhr, textStatus, errorMessage) {
                     console.error('Отписка не отправлена: ' + errorMessage);
-                }
-            })
-        }
-
-        function setStatus(id, status, error) {
-            console.log('Отправка статуса ' + status + " ");
-            $.ajax(setStatusUrl, {
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'text',
-                data: JSON.stringify({messageCode:id, state: status, errorMessage: error}),
-                success: function () {
-                    console.log('Статус успешно отправлен')
-                },
-                error: function (jqXhr, textStatus, errorMessage) {
-                    console.error('Статус не отправлен: ' + errorMessage);
                 }
             })
         }
