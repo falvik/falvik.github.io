@@ -39,6 +39,20 @@
             unsubscribe(new Promise((resolve) => resolve(getOldToken())));
             subscribe();
         });
+        messaging.onMessage(function(payload) {
+            const data = payload.data;
+            const notificationOptions = {body: data.body, tag: data.messageId};
+            const notify = new Notification(data.title,notificationOptions);
+            if(data.link) {
+                notify.onclick = () => {
+                    setStatus(data.messageId, "LINK");
+                    window.open(data.link);
+                }
+            }
+            notify.onshow = () => setStatus(data.messageId, "SHOW");
+            notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
+        });
+        updateButtonState();
         updateButtonState();
 
         function updateButtonState() {
