@@ -41,7 +41,10 @@ function setStatus(id, status, error) {
             'Content-Type': 'application/json;charset=utf-8'
         },
         body: JSON.stringify({messageCode: id, state: status, errorMessage: error})
-    }).then(() => {
-        console.log('Статус отправлен');
     })
+        .then(res => {
+            if (res.ok) console.log('Статус отправлен');
+            else console.log('Не удалось отправить статус:' + JSON.stringify(res))
+        })
+        .catch(err=>console.error('Не удалось отправить статус: ' + err))
 }

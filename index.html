@@ -130,7 +130,11 @@
             },
             body: JSON.stringify({messageCode: id, state: status, errorMessage: error})
         })
-            .then(() => console.log('Статус отправлен'))
+            .then(res => {
+                if (res.ok) console.log('Статус отправлен');
+                else console.log('Не удалось отправить статус:' + JSON.stringify(res))
+            })
+            .catch(err=>console.error('Не удалось отправить статус: ' + err))
     }
 
     function doSubscribe(currentToken) {
@@ -142,8 +146,11 @@
             },
             body: JSON.stringify({token: currentToken, clientCode: testClientCode})
         })
-            .then(() => console.log('Подписка успешно отправлена'))
-            .catch(err => console.error('Подписка не отправлена: ' + err))
+            .then(res => {
+                if (res.ok) console.log('Подписка успешно отправлена');
+                else console.error('Подписка не отправлена: ' + JSON.stringify(res))
+            })
+            .catch(err=>console.error('Подписка не отправлена: ' + err))
     }
 
     function doUnsubscribe(currentToken) {
@@ -155,8 +162,11 @@
             },
             body: JSON.stringify({token: currentToken})
         })
-            .then(() => console.log('Отписка успешно отправлена'))
-            .catch(err => console.error('Отписка не отправлена: ' + err))
+            .then(res => {
+                if (res.ok) console.log('Отписка успешно отправлена');
+                else console.error('Отписка не отправлена: ' + JSON.stringify(res))
+            })
+            .catch(err=>console.error('Отписка не отправлена: ' + err))
     }
 </script>
 </body>
