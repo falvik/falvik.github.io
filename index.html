@@ -9,172 +9,173 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
-        //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
-        const senderId = '493570643651';
-        const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
-        const projectId = "test-51e78";
-        const appId = "1:493570643651:web:cd564f697b8d081b17b476";
+    //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
+    const senderId = '493570643651';
+    const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
+    const projectId = "test-51e78";
+    const appId = "1:493570643651:web:cd564f697b8d081b17b476";
 
-        const testClientCode = "121000011741609581";
-        const host = "https://compath-callback.sportmaster.ru";
-        const subscribeUrl = host + "/test/web-push-subscribe";
-        const unsubscribeUrl = host + "/test/web-push-unsubscribe";
-        const setStatusUrl = host + "/test/web-push-status";
+    const testClientCode = "121000011741609581";
+    const host = "https://compath-callback.sportmaster.ru";
+    const subscribeUrl = host + "/test/web-push-subscribe";
+    const unsubscribeUrl = host + "/test/web-push-unsubscribe";
+    const setStatusUrl = host + "/test/web-push-status";
 
-        // Initialize Firebase
-        firebase.initializeApp({
-            apiKey: "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg",
-            authDomain: "test-51e78.firebaseapp.com",
-            databaseURL: "https://test-51e78.firebaseio.com",
-            projectId: "test-51e78",
-            storageBucket: "test-51e78.appspot.com",
-            messagingSenderId: "493570643651",
-            appId: "1:493570643651:web:cd564f697b8d081b17b476",
-            measurementId: "G-LLFF9VTSRL"
-        });
+    // Initialize Firebase
+    firebase.initializeApp({
+        apiKey: "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg",
+        authDomain: "test-51e78.firebaseapp.com",
+        databaseURL: "https://test-51e78.firebaseio.com",
+        projectId: "test-51e78",
+        storageBucket: "test-51e78.appspot.com",
+        messagingSenderId: "493570643651",
+        appId: "1:493570643651:web:cd564f697b8d081b17b476",
+        measurementId: "G-LLFF9VTSRL"
+    });
 
-        const messaging = firebase.messaging();
-        messaging.onTokenRefresh(()=>{
-            console.log("Токен обновился, переподписываемся.");
-            unsubscribe(new Promise((resolve) => resolve(getOldToken())));
-            subscribe();
-        });
-        messaging.onMessage(function(payload) {
-            const data = payload.data;
-            const notificationOptions = {body: data.body, tag: data.messageId};
-            const notify = new Notification(data.title,notificationOptions);
-            if(data.link) {
-                notify.onclick = () => {
-                    setStatus(data.messageId, "LINK");
-                    window.open(data.link);
-                }
-            }
-            notify.onshow = () => setStatus(data.messageId, "SHOW");
-            notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
-        });
-        updateButtonState();
-        updateButtonState();
-
-        function updateButtonState() {
-            var button = document.getElementById("subscribeBtn");
-            button.removeAttribute("hidden");
-            switch (Notification.permission) {
-                case "default":
-                    button.setAttribute("onclick", "subscribe()");
-                    button.innerText = "Подписаться";
-                    break;
-                case "granted":
-                    messaging.getToken()
-                        .then(token => {
-                            if (checkToken(token)) {
-                                button.setAttribute("onclick", "unsubscribe(messaging.getToken())");
-                                button.innerText = "Отписаться";
-                            } else {
-                                button.setAttribute("onclick", "subscribe()");
-                                button.innerText = "Подписаться (разрешение уже получено)";
-                            }
-                        });
-                    break;
-                case "denied":
-                    button.disabled = true;
-                    button.innerText = "Запрещено";
-                    break;
+    const messaging = firebase.messaging();
+    messaging.onTokenRefresh(() => {
+        console.log("Токен обновился, переподписываемся.");
+        unsubscribe(new Promise((resolve) => resolve(getOldToken())));
+        subscribe();
+    });
+    messaging.onMessage(function (payload) {
+        const data = payload.data;
+        const notificationOptions = {body: data.body, tag: data.messageId};
+        const notify = new Notification(data.title, notificationOptions);
+        if (data.link) {
+            notify.onclick = () => {
+                setStatus(data.messageId, "LINK");
+                window.open(data.link);
             }
         }
+        notify.onshow = () => setStatus(data.messageId, "SHOW");
+        notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
+    });
+    updateButtonState();
+    updateButtonState();
 
-        function setStatus(id, status, error) {
-            console.log('Отправка статуса ' + status + " ");
-            $.ajax(setStatusUrl, {
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'text',
-                data: {messageCode:id, state: status, errorMessage: error},
-                success: function () {
-                    console.log('Статус успешно отправлен')
-                },
-                error: function (jqXhr, textStatus, errorMessage) {
-                    console.error('Статус не отправлен: ' + errorMessage);
-                }
-            })
-
-        function subscribe() {
-            //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
-            messaging.getToken()
-                .then(function (currentToken) {
-                    console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
-                    doSubscribe(currentToken);
-                    saveToken(currentToken);
-                    updateButtonState();
-                })
-                .catch(function (err) {
-                    console.warn('Не удалось получить токен.' + err);
-                    updateButtonState();
-                });
-
-
-        }
-
-        function unsubscribe(tokenPromise) {
-            console.log("Отписываемся...");
-
-            tokenPromise
-                .then(token => messaging.deleteToken(token)
-                    .then(succesfull => {
-                        if (succesfull) {
-                            console.log("Токен " + token + " успешно удалён");
-                            doUnsubscribe(token)
+    function updateButtonState() {
+        var button = document.getElementById("subscribeBtn");
+        button.removeAttribute("hidden");
+        switch (Notification.permission) {
+            case "default":
+                button.setAttribute("onclick", "subscribe()");
+                button.innerText = "Подписаться";
+                break;
+            case "granted":
+                messaging.getToken()
+                    .then(token => {
+                        if (checkToken(token)) {
+                            button.setAttribute("onclick", "unsubscribe(messaging.getToken())");
+                            button.innerText = "Отписаться";
                         } else {
-                            console.warn("Не удалось удалить токен " + token);
+                            button.setAttribute("onclick", "subscribe()");
+                            button.innerText = "Подписаться (разрешение уже получено)";
                         }
-                        updateButtonState()
-                    }));
+                    });
+                break;
+            case "denied":
+                button.disabled = true;
+                button.innerText = "Запрещено";
+                break;
         }
+    }
 
-        function checkToken(currentToken) {
-            return getOldToken() === currentToken;
-        }
+    function setStatus(id, status, error) {
+        console.log('Отправка статуса ' + status + " ");
+        $.ajax(setStatusUrl, {
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'text',
+            data: {messageCode: id, state: status, errorMessage: error},
+            success: function () {
+                console.log('Статус успешно отправлен')
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                console.error('Статус не отправлен: ' + errorMessage);
+            }
+        });
+    }
 
-        function saveToken(currentToken) {
-            window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
-        }
-
-        function getOldToken() {
-            return window.localStorage.getItem('firebaseToken')
-        }
-
-        // отправка ID на сервер
-        function doSubscribe(currentToken) {
-            console.log('Отправка токена на сервер...');
-            $.ajax(subscribeUrl, {
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'text',
-                data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-                success: function () {
-                    console.log('Подписка успешно отправлена')
-                },
-                error: function (jqXhr, textStatus, errorMessage) {
-                    console.error('Подписка не отправлена: ' + errorMessage);
-                }
+    function subscribe() {
+        //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
+        messaging.getToken()
+            .then(function (currentToken) {
+                console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
+                doSubscribe(currentToken);
+                saveToken(currentToken);
+                updateButtonState();
             })
-        }
+            .catch(function (err) {
+                console.warn('Не удалось получить токен.' + err);
+                updateButtonState();
+            });
 
-        // отправка ID на сервер
-        function doUnsubscribe(currentToken) {
-            console.log('Отправка запроса на отписку от рассылки...');
-            $.ajax(unsubscribeUrl, {
-                type: 'POST',
-                contentType: 'application/json',
-                dataType: 'text',
-                data: JSON.stringify({token:currentToken}),
-                success: function () {
-                    console.log('Отписка успешно отправлена')
-                },
-                error: function (jqXhr, textStatus, errorMessage) {
-                    console.error('Отписка не отправлена: ' + errorMessage);
-                }
-            })
-        }
+
+    }
+
+    function unsubscribe(tokenPromise) {
+        console.log("Отписываемся...");
+
+        tokenPromise
+            .then(token => messaging.deleteToken(token)
+                .then(succesfull => {
+                    if (succesfull) {
+                        console.log("Токен " + token + " успешно удалён");
+                        doUnsubscribe(token)
+                    } else {
+                        console.warn("Не удалось удалить токен " + token);
+                    }
+                    updateButtonState()
+                }));
+    }
+
+    function checkToken(currentToken) {
+        return getOldToken() === currentToken;
+    }
+
+    function saveToken(currentToken) {
+        window.localStorage.setItem('firebaseToken', currentToken ? currentToken : '');
+    }
+
+    function getOldToken() {
+        return window.localStorage.getItem('firebaseToken')
+    }
+
+    // отправка ID на сервер
+    function doSubscribe(currentToken) {
+        console.log('Отправка токена на сервер...');
+        $.ajax(subscribeUrl, {
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'text',
+            data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
+            success: function () {
+                console.log('Подписка успешно отправлена')
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                console.error('Подписка не отправлена: ' + errorMessage);
+            }
+        })
+    }
+
+    // отправка ID на сервер
+    function doUnsubscribe(currentToken) {
+        console.log('Отправка запроса на отписку от рассылки...');
+        $.ajax(unsubscribeUrl, {
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'text',
+            data: JSON.stringify({token: currentToken}),
+            success: function () {
+                console.log('Отписка успешно отправлена')
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                console.error('Отписка не отправлена: ' + errorMessage);
+            }
+        })
+    }
 </script>
 </body>
 </html>
