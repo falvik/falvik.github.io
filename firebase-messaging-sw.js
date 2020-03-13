@@ -1,5 +1,5 @@
 // firebase-messaging-sw.js
-importScripts('https://code.jquery.com/jquery-3.4.1.min.js');
+importScripts('https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js');
 importScripts('https://www.gstatic.com/firebasejs/7.6.1/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/7.6.1/firebase-messaging.js');
 
@@ -33,16 +33,24 @@ self.addEventListener('notificationclick', function(event) {
 
 function setStatus(id, status, error) {
     console.log('Отправка статуса ' + status + " ");
-    $.ajax(setStatusUrl, {
-        type: 'POST',
-        contentType: 'application/json',
-        dataType: 'text',
-        data: {messageCode:id, state: status, errorMessage: error},
-        success: function () {
-            console.log('Статус успешно отправлен')
-        },
-        error: function (jqXhr, textStatus, errorMessage) {
-            console.error('Статус не отправлен: ' + errorMessage);
-        }
-    })
+    axios.post(setStatusUrl, {messageCode:id, state: status, errorMessage: error})
+        .then(()=>{
+            console.log('Статус отправлен');
+        })
 }
+
+// function setStatus(id, status, error) {
+//     console.log('Отправка статуса ' + status + " ");
+//     $.ajax(setStatusUrl, {
+//         type: 'POST',
+//         contentType: 'application/json',
+//         dataType: 'text',
+//         data: {messageCode:id, state: status, errorMessage: error},
+//         success: function () {
+//             console.log('Статус успешно отправлен')
+//         },
+//         error: function (jqXhr, textStatus, errorMessage) {
+//             console.error('Статус не отправлен: ' + errorMessage);
+//         }
+//     })
+//}
