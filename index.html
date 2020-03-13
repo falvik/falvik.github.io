@@ -148,7 +148,7 @@
 
     function doUnsubscribe(currentToken) {
         console.log('Отправка запроса на отписку от рассылки...');
-        fetch(subscribeUrl, {
+        fetch(unsubscribeUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
