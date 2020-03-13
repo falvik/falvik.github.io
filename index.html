@@ -6,7 +6,7 @@
 </head>
 <body>
 <script src="https://gstatic.com/firebasejs/7.6.1/firebase.js"></script>
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
     //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
@@ -82,22 +82,6 @@
         }
     }
 
-    function setStatus(id, status, error) {
-        console.log('Отправка статуса ' + status + " ");
-        $.ajax(setStatusUrl, {
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'text',
-            data: {messageCode: id, state: status, errorMessage: error},
-            success: function () {
-                console.log('Статус успешно отправлен')
-            },
-            error: function (jqXhr, textStatus, errorMessage) {
-                console.error('Статус не отправлен: ' + errorMessage);
-            }
-        });
-    }
-
     function subscribe() {
         //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
         messaging.getToken()
@@ -111,13 +95,10 @@
                 console.warn('Не удалось получить токен.' + err);
                 updateButtonState();
             });
-
-
     }
 
     function unsubscribe(tokenPromise) {
         console.log("Отписываемся...");
-
         tokenPromise
             .then(token => messaging.deleteToken(token)
                 .then(succesfull => {
@@ -143,38 +124,42 @@
         return window.localStorage.getItem('firebaseToken')
     }
 
-    // отправка ID на сервер
-    function doSubscribe(currentToken) {
-        console.log('Отправка токена на сервер...');
-        $.ajax(subscribeUrl, {
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'text',
-            data: JSON.stringify({token: currentToken, clientCode: testClientCode}),
-            success: function () {
-                console.log('Подписка успешно отправлена')
+    function setStatus(id, status, error) {
+        console.log('Отправка статуса ' + status + " ");
+        fetch(setStatusUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             },
-            error: function (jqXhr, textStatus, errorMessage) {
-                console.error('Подписка не отправлена: ' + errorMessage);
-            }
+            body: JSON.stringify({messageCode: id, state: status, errorMessage: error})
         })
+            .then(() => console.log('Статус отправлен'))
     }
 
-    // отправка ID на сервер
+    function doSubscribe(currentToken) {
+        console.log('Отправка токена на сервер...');
+        fetch(subscribeUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({token: currentToken, clientCode: testClientCode})
+        })
+            .then(() => console.log('Подписка успешно отправлена'))
+            .catch(err => console.error('Подписка не отправлена: ' + err))
+    }
+
     function doUnsubscribe(currentToken) {
         console.log('Отправка запроса на отписку от рассылки...');
-        $.ajax(unsubscribeUrl, {
-            type: 'POST',
-            contentType: 'application/json',
-            dataType: 'text',
-            data: JSON.stringify({token: currentToken}),
-            success: function () {
-                console.log('Отписка успешно отправлена')
+        fetch(subscribeUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
             },
-            error: function (jqXhr, textStatus, errorMessage) {
-                console.error('Отписка не отправлена: ' + errorMessage);
-            }
+            body: JSON.stringify({token: currentToken})
         })
+            .then(() => console.log('Отписка успешно отправлена'))
+            .catch(err => console.error('Отписка не отправлена: ' + err))
     }
 </script>
 </body>
