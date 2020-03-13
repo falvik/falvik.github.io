@@ -15,6 +15,8 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+const host = "https://compath-callback.sportmaster.ru";
+const setStatusUrl = host + "/test/web-push-status";
 
 messaging.setBackgroundMessageHandler(function (payload) {
     const data = payload.data;
