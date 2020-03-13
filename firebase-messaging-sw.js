@@ -15,19 +15,20 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.setBackgroundMessageHandler(function(payload) {
+messaging.setBackgroundMessageHandler(function (payload) {
     const data = payload.data;
-    const notificationOptions = {body: data.body, tag: data.messageId};
-    const notify = new Notification(data.title,notificationOptions);
-    if(data.link) {
-        notify.onclick = () => {
-            setStatus(data.messageId, "LINK");
-            window.open(data.link);
-        }
-    }
-    notify.onshow = () => setStatus(data.messageId, "SHOW");
-    notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
+    const notificationOptions = {body: data.body, tag: data.messageId, data: {link: data.link}};
+    return self.registration.showNotification(data.title, notificationOptions)
+        .then(() => setStatus(data.messageId, "SHOW"))
+        .catch((event) => setStatus(data.messageId, "ERROR", JSON.stringify(event)))
 });
+
+self.addEventListener('notificationclick', function(event) {
+    var link = event.notification.data.link
+    if(link) {
+        clients.openWindow(link)
+    }
+})
 
 function setStatus(id, status, error) {
     console.log('Отправка статуса ' + status + " ");

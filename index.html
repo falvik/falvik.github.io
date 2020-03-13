@@ -82,6 +82,21 @@
             }
         }
 
+        function setStatus(id, status, error) {
+            console.log('Отправка статуса ' + status + " ");
+            $.ajax(setStatusUrl, {
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'text',
+                data: {messageCode:id, state: status, errorMessage: error},
+                success: function () {
+                    console.log('Статус успешно отправлен')
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    console.error('Статус не отправлен: ' + errorMessage);
+                }
+            })
+
         function subscribe() {
             //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
             messaging.getToken()
