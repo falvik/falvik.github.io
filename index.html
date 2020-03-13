@@ -9,12 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <button type="button" id="subscribeBtn" hidden></button>
 <script>
-    //параметры из "Учетных данных для проекта" на вкладке "Cloud Messaging" настроек проекта Firebase
-    const senderId = '493570643651';
-    const apiKey = "AIzaSyBh8Xq1A02Hjh10rDgoUK3YfbKOyLsdJVg";
-    const projectId = "test-51e78";
-    const appId = "1:493570643651:web:cd564f697b8d081b17b476";
-
     const testClientCode = "121000011741609581";
     const host = "https://compath-callback.sportmaster.ru";
     const subscribeUrl = host + "/test/web-push-subscribe";
@@ -32,13 +26,17 @@
         appId: "1:493570643651:web:cd564f697b8d081b17b476",
         measurementId: "G-LLFF9VTSRL"
     });
-
     const messaging = firebase.messaging();
+
+    //В необходимости и правильности этой части не уверен
     messaging.onTokenRefresh(() => {
         console.log("Токен обновился, переподписываемся.");
-        unsubscribe(new Promise((resolve) => resolve(getOldToken())));
-        subscribe();
+        unsubscribe(new Promise((resolve) => resolve(getOldToken())))
+            .then(() => subscribe());
     });
+    //Показываем сообщение. Tag используется для предотвращения многократного отображения одного и того же сообщения,
+    //т.к. этот обработчик срабатывает на всех открытых вкладках сайта, если на момент прихода сообщения
+    //была активна вкладка с сайтом
     messaging.onMessage(function (payload) {
         const data = payload.data;
         const notificationOptions = {body: data.body, tag: data.messageId};
@@ -52,7 +50,6 @@
         notify.onshow = () => setStatus(data.messageId, "SHOW");
         notify.onerror = (event) => setStatus(data.messageId, "ERROR", JSON.stringify(event));
     });
-    updateButtonState();
     updateButtonState();
 
     function updateButtonState() {
@@ -84,7 +81,7 @@
 
     function subscribe() {
         //получаем ID устройства, при необходимости запрашивая разрешение у пользователя
-        messaging.getToken()
+        return messaging.getToken()
             .then(function (currentToken) {
                 console.log("Пользователь согласился получать push. Токен пользователя:" + currentToken);
                 doSubscribe(currentToken);
@@ -99,7 +96,7 @@
 
     function unsubscribe(tokenPromise) {
         console.log("Отписываемся...");
-        tokenPromise
+        return tokenPromise
             .then(token => messaging.deleteToken(token)
                 .then(succesfull => {
                     if (succesfull) {
